@@ -1,13 +1,4 @@
-"""CLI interface for invoice_conv project.
-
-Be creative! do whatever you want!
-
-- Install click or typer and create a CLI app
-- Use builtin argparse
-- Start a web application
-- Import things from your .base module
-"""
-
+import click
 
 def main():  # pragma: no cover
     """
