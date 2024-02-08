@@ -10,7 +10,7 @@ def decode(data, template):
     """TODO"""
     reader = InvoiceReader()
     reader.load_data_package(data)
-    reader.export_invoices(template)
+    reader.export_invoices(template=template)
 
 
 def main():

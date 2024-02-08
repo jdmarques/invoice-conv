@@ -66,6 +66,6 @@ class InvoiceReader:
         # Use the detect_and_decode function to get the decoded QR data
         return self.qr_reader.detect_and_decode(image=image)
 
-    def export_invoices(self, output_file="invoices.xlsx"):
+    def export_invoices(self, output_file="invoices.xlsx", template=None):
         df = pandas.DataFrame([invoice.data for invoice in self.invoices])
         df.to_excel(output_file, index=False)
