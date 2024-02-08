@@ -2,6 +2,8 @@ from qreader import QReader
 import cv2
 import zipfile
 import pandas
+import tempfile
+import os
 
 
 class Invoice:
@@ -49,11 +51,13 @@ class InvoiceReader:
         #  where url is most likely a google drive link
         pass
 
-    def read_data_package(self, input_pkg):
+    def load_data_package(self, input_pkg):
         with zipfile.ZipFile(input_pkg) as package:
-            for file in package.namelist():
-                with package.open(file) as f:
-                    self.invoices.append(self.decode_image(f))
+            with tempfile.TemporaryDirectory() as temp_dir:
+                package.extractall(temp_dir)
+                for file in os.listdir(temp_dir):
+                    file_path = os.path.join(temp_dir, file)
+                    self.invoices.append(self.decode_image(file_path))
 
     def decode_image(self, img_path):
         # Get the image that contains the QR code

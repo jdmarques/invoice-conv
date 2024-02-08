@@ -1,19 +1,17 @@
 import click
 
-def main():  # pragma: no cover
-    """
-    The main function executes on commands:
-    `python -m invoice_conv` and `$ invoice_conv `.
+from invoice_conv.invoice_reader import InvoiceReader
 
-    This is your program's entry point.
 
-    You can change this function to do whatever you want.
-    Examples:
-        * Run a test suite
-        * Run a server
-        * Do some other stuff
-        * Run a command line application (Click, Typer, ArgParse)
-        * List all available tasks
-        * Run an application (Flask, FastAPI, Django, etc.)
-    """
-    print("This will do something")
+@click.command()
+@click.option("--data", help="TODO")
+@click.option("--template", help="TODO")
+def decode(data, template):
+    """TODO"""
+    reader = InvoiceReader()
+    reader.load_data_package(data)
+    reader.export_invoices(template)
+
+
+def main():
+    decode()
