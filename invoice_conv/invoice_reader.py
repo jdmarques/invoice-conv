@@ -1,50 +1,86 @@
-from qreader import QReader
-import cv2
-import zipfile
-import pandas
-import tempfile
 import os
+import tempfile
+import zipfile
+import logging
+
+import cv2
+import pandas
+from qreader import QReader
 
 
 class Invoice:
-    def __init__(self):
-        self.data = {
-            "A": {"value": None, "description": "supplier nif"},
-            "B": {"value": None, "description": "client nif"},
-            "C": {"value": None, "description": "country code"},
-            "D": {"value": None, "description": "currency code"},
-            "E": {"value": None, "description": "delivery"},
-            "F": {"value": None, "description": "transaction date"},
-            "G": {"value": None, "description": "sale terminal id"},
-            "H": {"value": None, "description": "invoice id"},
-            "I1": {"value": None, "description": "tax rate"},
-            "I3": {"value": None, "description": "tax base"},
-            "I4": {"value": None, "description": "tax value"},
-            "N": {"value": None, "description": "total value"},
-            "O": {"value": None, "description": "paid value"},
-            "Q": {"value": None, "description": "digital signature"},
-            "R": {"value": None, "description": "control"},
-        }
+    pt_invoice_matches = {
+        # TODO: the description of the invoice components were generated and are WRONG
+        "A": "Invoice number",
+        "B": "Invoice date",
+        "C": "Invoice due date",
+        "D": "Supplier name",
+        "E": "Supplier address",
+        "F": "Supplier tax ID",
+        "G": "Supplier VAT ID",
+        "H": "Customer name",
+        "I1": "Customer address",
+        "I2": "Customer tax ID",
+        "I3": "Customer VAT ID",
+        "I4": "Customer VAT ID",
+        "N": "Total amount",
+        "O": "VAT amount",
+        "Q": "Currency",
+        "R": "Payment method",
+    }
+    data = {
+        "A": [],
+        "B": [],
+        "C": [],
+        "D": [],
+        "E": [],
+        "F": [],
+        "G": [],
+        "H": [],
+        "I1": [],
+        "I2": [],
+        "I3": [],
+        "I4": [],
+        "N": [],
+        "O": [],
+        "Q": [],
+        "R": [],
+    }
+
+    max_size = 0
 
     @classmethod
-    def from_string(cls, invoice_str):
-        obj = cls()
-
-        params = invoice_str.split("*")
-
+    def update_from_string(cls, invoice_str):
+        params = invoice_str[0].split("*")
         for param in params:
             key, value = param.split(":")
 
             # Set the value of the corresponding attribute
-            obj.data[key]["value"] = value
+            try:
+                cls.data[key].append(value)
+            except KeyError:
+                logging.warning(f"Unknown key {key}")
 
-        return cls(invoice_str)
+        size = max(map(len, cls.data.values()))
+        for key in cls.data:
+            if len(cls.data[key]) < size:
+                cls.data[key].append("NA")
+
+    @classmethod
+    def export(cls):
+        # template is probably gonna be a list of tuples with the following format:
+        # [(component, position),...]
+        data_formated = {}
+        # for component in cls.data:
+        for component in cls.pt_invoice_matches:
+            data_formated[cls.pt_invoice_matches[component]] = cls.data.get(component)
+        return pandas.DataFrame(data_formated)
 
 
 class InvoiceReader:
     def __init__(self):
         self.qr_reader = QReader()
-        self.invoices = []
+        self.invoices = Invoice()
 
     def download_package(self, url):
         # TODO download package from url,
@@ -57,15 +93,18 @@ class InvoiceReader:
                 package.extractall(temp_dir)
                 for file in os.listdir(temp_dir):
                     file_path = os.path.join(temp_dir, file)
-                    self.invoices.append(self.decode_image(file_path))
+                    self.invoices.update_from_string(self.decode_image(file_path))
+                    # self.invoices.append(invoice)
 
     def decode_image(self, img_path):
         # Get the image that contains the QR code
         image = cv2.cvtColor(cv2.imread(img_path), cv2.COLOR_BGR2RGB)
 
         # Use the detect_and_decode function to get the decoded QR data
-        return self.qr_reader.detect_and_decode(image=image)
+        decoded = self.qr_reader.detect_and_decode(image=image)
+        return decoded
 
     def export_invoices(self, output_file="invoices.xlsx", template=None):
-        df = pandas.DataFrame([invoice.data for invoice in self.invoices])
+        # A : [1,2,3]
+        df = self.invoices.export()
         df.to_excel(output_file, index=False)

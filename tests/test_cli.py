@@ -6,8 +6,7 @@ import os
 
 def test_decode():
     runner = CliRunner()
-    result = runner.invoke(decode, ["--data", "tests/test_data/test_invoices.zip"])
+    result = runner.invoke(decode, ["tests/test_data/test_invoices.zip"])
     if result.exit_code != 0:
-        raise AssertionError(result.output)
-    assert os.path.exists("invoices.csv")
-
+        raise result.exception
+    assert os.path.exists("invoices.xlsx")

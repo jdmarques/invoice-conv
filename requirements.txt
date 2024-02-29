@@ -6,3 +6,4 @@
 qreader
 click
 pandas
+openpyxl

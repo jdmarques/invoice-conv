@@ -4,7 +4,7 @@ from invoice_conv.invoice_reader import InvoiceReader
 
 
 @click.command()
-@click.option("--data", help="TODO")
+@click.argument("data")
 @click.option("--template", help="TODO")
 def decode(data, template):
     """TODO"""
