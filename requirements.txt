@@ -7,3 +7,4 @@ qreader
 click
 pandas
 openpyxl
+flask
