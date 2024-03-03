@@ -1,7 +1,7 @@
+import logging
 import os
 import tempfile
 import zipfile
-import logging
 
 import cv2
 import pandas
@@ -71,7 +71,9 @@ class Invoice:
         data_formated = {}
         # for component in cls.data:
         for component in cls.pt_invoice_matches:
-            data_formated[cls.pt_invoice_matches[component]] = cls.data.get(component)
+            data_formated[cls.pt_invoice_matches[component]] = cls.data.get(
+                component
+            )
         return pandas.DataFrame(data_formated)
 
 
@@ -91,7 +93,9 @@ class InvoiceReader:
                 package.extractall(temp_dir)
                 for file in os.listdir(temp_dir):
                     file_path = os.path.join(temp_dir, file)
-                    self.invoices.update_from_string(self.decode_image(file_path))
+                    self.invoices.update_from_string(
+                        self.decode_image(file_path)
+                    )
 
     def decode_image(self, img_path):
         # Get the image that contains the QR code

@@ -27,7 +27,9 @@ H:JFR7GTKJ-1845*I1:PT*I2:3.74*I7:1.52*I8:0.35*N:0.35*O:5.61*Q:G3gO*R:2648"
     def test_invoice_reader_exporter(self):
         reader = InvoiceReader()
 
-        reader.load_data_package(os.path.join(self.test_data_dir, "test_invoices.zip"))
+        reader.load_data_package(
+            os.path.join(self.test_data_dir, "test_invoices.zip")
+        )
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_exported = os.path.join(temp_dir, "invoices.xlsx")
             reader.export_invoices(temp_exported)
