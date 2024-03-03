@@ -47,11 +47,9 @@ class Invoice:
         "R": [],
     }
 
-    max_size = 0
-
     @classmethod
     def update_from_string(cls, invoice_str):
-        params = invoice_str[0].split("*")
+        params = invoice_str.split("*")
         for param in params:
             key, value = param.split(":")
 
@@ -94,7 +92,6 @@ class InvoiceReader:
                 for file in os.listdir(temp_dir):
                     file_path = os.path.join(temp_dir, file)
                     self.invoices.update_from_string(self.decode_image(file_path))
-                    # self.invoices.append(invoice)
 
     def decode_image(self, img_path):
         # Get the image that contains the QR code
@@ -102,7 +99,7 @@ class InvoiceReader:
 
         # Use the detect_and_decode function to get the decoded QR data
         decoded = self.qr_reader.detect_and_decode(image=image)
-        return decoded
+        return decoded[0]
 
     def export_invoices(self, output_file="invoices.xlsx", template=None):
         # A : [1,2,3]

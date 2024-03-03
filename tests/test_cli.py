@@ -4,9 +4,16 @@ from click.testing import CliRunner
 import os
 
 
-def test_decode():
-    runner = CliRunner()
-    result = runner.invoke(decode, ["tests/test_data/test_invoices.zip"])
-    if result.exit_code != 0:
-        raise result.exception
-    assert os.path.exists("invoices.xlsx")
+class TestInvoiceReader:
+    test_data_dir = os.path.join(os.path.dirname(__file__), "test_data")
+
+    def test_decode(self):
+        runner = CliRunner()
+
+        with runner.isolated_filesystem():
+            result = runner.invoke(
+                decode, [os.path.join(self.test_data_dir, "test_invoices.zip")]
+            )
+            if result.exit_code != 0:
+                raise result.exception
+            assert os.path.exists("invoices.xlsx")
